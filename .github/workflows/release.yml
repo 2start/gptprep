@@ -50,8 +50,6 @@ jobs:
 
     - name: Release
       uses: softprops/action-gh-release@v1
-        - name: Create Release and Upload Assets
-      uses: softprops/action-gh-release@v1
       with:
         files: artifacts/*
       env:
