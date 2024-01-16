@@ -25,7 +25,7 @@ jobs:
     - name: Build binary
       run: |
         BINARY_NAME="gptprep-${{ matrix.goos }}-${{ matrix.goarch }}"
-        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "${BINARY_NAME}"
+        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "${BINARY_NAME}" ./cmd
 
     - name: Archive binary
       uses: actions/upload-artifact@v3

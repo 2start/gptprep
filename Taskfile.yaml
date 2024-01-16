@@ -14,5 +14,5 @@ tasks:
   release:
     desc: Tag the new version and push it to GitHub
     cmds:
-      - git tag -a "{{.VERSION}}" -m "Release VERSION {{.VERSION}} of {{.APP_NAME}}"
+      - git tag -a "{{.VERSION}}" -m "Release version {{.VERSION}} of {{.APP_NAME}}"
       - git push origin "{{.VERSION}}"
