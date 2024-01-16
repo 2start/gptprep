@@ -1,0 +1,15 @@
+# Taskfile.yml
+version: '3'
+
+vars:
+  APP_NAME: gptprep
+
+tasks:
+  release:
+    desc: Tag the new version and push it to GitHub
+    params:
+      - name: version
+        type: string
+    cmds:
+      - git tag -a "{{.version}}" -m "Release version {{.version}} of {{.APP_NAME}}"
+      - git push origin "{{.version}}"
