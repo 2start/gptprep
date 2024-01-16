@@ -98,7 +98,7 @@ func findFiles(extensions, excludes []string) ([]string, error) {
 func concatenateFiles(files []string) (string, error) {
 	var buffer bytes.Buffer
 	for _, file := range files {
-		content, err := ioutil.ReadFile(file)
+		content, err := os.ReadFile(file)
 		if err != nil {
 			return "", err
 		}
