@@ -46,6 +46,7 @@ The following table lists the command line parameters supported by `gptprep`:
 - `.gitignore` 
 - globs in your `.gitignore`.
 - files that are not identified as text file via their mimetype `text/*`.
+- `LICENSE`
 
 
 ## Feature Requests
