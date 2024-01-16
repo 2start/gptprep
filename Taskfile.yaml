@@ -3,13 +3,16 @@ version: '3'
 
 vars:
   APP_NAME: gptprep
+  VERSION: v1.0.9
 
 tasks:
+  run:
+    desc: Start gptprep locally with optional flags
+    cmds:
+      - go run ./cmd {{.CLI_ARGS}}
+
   release:
     desc: Tag the new version and push it to GitHub
-    params:
-      - name: version
-        type: string
     cmds:
-      - git tag -a "{{.version}}" -m "Release version {{.version}} of {{.APP_NAME}}"
-      - git push origin "{{.version}}"
+      - git tag -a "{{.VERSION}}" -m "Release VERSION {{.VERSION}} of {{.APP_NAME}}"
+      - git push origin "{{.VERSION}}"
