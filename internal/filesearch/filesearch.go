@@ -112,9 +112,7 @@ func findFiles(extensions, excludes []string) ([]string, error) {
 		return nil, err
 	}
 
-	// Ensure '.gitignore' is always in the excludes list
-	excludes = append(excludes, ".gitignore")
-	excludes = append(excludes, ".git")
+	excludes = append(excludes, ".gitignore", ".git", "LICENSE")
 
 	err = filepath.Walk(".", walkFileFunc(&files, extensions, excludes, ignoreObject))
 	if err != nil {
