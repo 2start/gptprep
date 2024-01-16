@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64]
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.21' # Specify the Go version you want to use for building
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Build binary
+      run: |
+        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}"
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          mv "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}" "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}.exe"
+        fi
+
+    - name: Archive binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}*
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
+        asset_name: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
+        asset_content_type: application/octet-stream
