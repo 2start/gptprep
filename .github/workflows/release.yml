@@ -7,12 +7,12 @@ on:
 
 jobs:
   build:
-    name: Build and Release
+    name: Build for macOS ARM
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: [linux, darwin, windows]
-        goarch: [amd64]
+        goos: [darwin]
+        goarch: [arm64]
     steps:
     - name: Set up Go
       uses: actions/setup-go@v3
@@ -24,16 +24,14 @@ jobs:
 
     - name: Build binary
       run: |
-        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}"
-        if [ "${{ matrix.goos }}" = "windows" ]; then
-          mv "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}" "gptprep-${{ matrix.goos }}-${{ matrix.goarch }}.exe"
-        fi
+        BINARY_NAME="gptprep-${{ matrix.goos }}-${{ matrix.goarch }}"
+        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "${BINARY_NAME}"
 
     - name: Archive binary
       uses: actions/upload-artifact@v3
       with:
         name: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
-        path: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}*
+        path: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
 
   release:
     name: Create Release
@@ -48,7 +46,7 @@ jobs:
       with:
         path: artifacts
 
-    - name: Release
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: artifacts/*
