@@ -1,7 +1,8 @@
-package main
+package filesearch
 
 import (
 	"bytes"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,6 +42,11 @@ func isExcludedFile(path string, extensions, excludes []string, ignoreObject *gi
     if len(extensions) > 0 && !hasValidExtension(path, extensions) {
         return true
     }
+
+	if !isTextFile(path) {
+		return true
+	}
+
     for _, exclude := range excludes {
         if matched, err := filepath.Match(exclude, fileName); err == nil && matched {
             return true
@@ -50,6 +56,28 @@ func isExcludedFile(path string, extensions, excludes []string, ignoreObject *gi
         return true
     }
     return false
+}
+
+// isTextFile reads the first 512 bytes of a file and uses http.DetectContentType
+// to determine if the file is a text file.
+func isTextFile(filePath string) bool {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return false
+	}
+
+	contentType := http.DetectContentType(buffer)
+
+	// MIME types starting with "text/" are text files.
+	return strings.HasPrefix(contentType, "text/")
 }
 
 func hasValidExtension(path string, extensions []string) bool {
@@ -105,15 +133,21 @@ func concatenateFiles(files []string) (string, error) {
 		}
 		buffer.WriteString("### filename: " + file + "\n")
 		buffer.Write(content)
-		buffer.WriteString("\n\n") // Add some spacing between files
+		buffer.WriteString("\n\n")
 	}
 	return buffer.String(), nil
 }
 
-func SearchAndConcatenateFiles(extensions, excludes []string) (string, error) {
+func SearchAndConcatenateFiles(extensions, excludes []string) ([]string, string, error) {
 	files, err := findFiles(extensions, excludes)
 	if err != nil {
-		return "", err
+		return []string{}, "", err
 	}
-	return concatenateFiles(files)
+
+	concatenatedContent, err := concatenateFiles(files)
+	if err != nil {
+		return []string{}, "", err 
+	}
+
+	return files, concatenatedContent, nil
 }

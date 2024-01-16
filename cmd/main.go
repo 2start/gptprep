@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/2start/gptprep/internal/clipboard"
+	"github.com/2start/gptprep/internal/filesearch"
 )
 
 func main() {
@@ -17,25 +19,25 @@ func main() {
 			extensions := viper.GetStringSlice("extension")
 			excludes := viper.GetStringSlice("exclude")
 
-			files, err := findFiles(extensions, excludes)
+			files, concatenatedContent, err := filesearch.SearchAndConcatenateFiles(extensions, excludes)
 			if err != nil {
-				fmt.Println("Error finding files:", err)
+				fmt.Println("Error finding and combining files:", err)
 				return
 			}
 			
-			// Print the filenames
-			for _, file := range files {
-				fmt.Println(file)
-			}
-			
-			concatenatedContent, err := concatenateFiles(files)
 			if err != nil {
 				fmt.Println("Error concatenating file content:", err)
 				return
 			}
-			err = LoadToClipboard(concatenatedContent)
+
+			err = clipboard.LoadToClipboard(concatenatedContent)
 			if err != nil {
 				fmt.Println("Error loading content to clipboard:", err)
+			}
+
+			fmt.Println("Files loaded into the clipboard:")
+			for _, file := range files {
+				fmt.Println(file)
 			}
 		},
 	}

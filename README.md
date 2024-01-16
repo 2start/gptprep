@@ -41,7 +41,12 @@ The following table lists the command line parameters supported by `gptprep`:
 | `--extension` | Specify file extensions to include in the search. Multiple extensions can be specified by repeating the parameter. |
 | `--exclude`   | Define patterns or filenames to exclude from the search. Multiple excludes can be specified by repeating the parameter. |
 
-`gptprep` automatically ignores `.git`, `.gitignore` and the content of your `.gitignore`.
+`gptprep` automatically ignores:
+- `.git`
+- `.gitignore` 
+- globs in your `.gitignore`.
+- files that are not identified as text file via their mimetype `text/*`.
+
 
 ## Feature Requests
 
