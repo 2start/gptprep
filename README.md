@@ -14,10 +14,16 @@ curl -sSL https://raw.githubusercontent.com/2start/gptprep/main/install.sh | sud
 
 ## Usage Examples
 
+Print the manual.
+
+```sh
+gptprep -h
+```
+
 To prepare the context to generate documentation for this repository, I used the following command:
 
 ```sh
-gptprep . --exclude ".github" --exclude "go.mod" --exclude "go.sum"
+gptprep --exclude ".github" --exclude "go.mod" --exclude "go.sum"
 ```
 
 To help me with developing this tool I used the following command to only load the code files:
