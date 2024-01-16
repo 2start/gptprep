@@ -46,7 +46,64 @@ jobs:
       with:
         path: artifacts
       
+        - name: List artifacts
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build for macOS ARM
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [darwin]
+        goarch: [arm64]
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.21' # Specify the Go version you want to use for building
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Build binary
+      run: |
+        BINARY_NAME="gptprep-${{ matrix.goos }}-${{ matrix.goarch }}"
+        env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o "${BINARY_NAME}"
+
+    - name: Archive binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: gptprep-${{ matrix.goos }}-${{ matrix.goarch }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+      
     - name: List artifacts
+      run: ls -la artifacts/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: ls -la artifacts/
 
     - name: Create Release
