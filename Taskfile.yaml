@@ -3,7 +3,7 @@ version: '3'
 
 vars:
   APP_NAME: gptprep
-  VERSION: v1.0.9
+  VERSION: v1.0.10
 
 tasks:
   run:
